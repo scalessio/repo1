@@ -27,14 +27,6 @@ import csv
 import glob, os
 
 
-# In[2]:
-
-
-""" When using different dataset the part to change this code are :
-    Retrive, Parser, The config variable(option), and the part to evaluate the RMSE"""
-
-
-# In[5]:
 
 
 def retrive():
@@ -59,7 +51,7 @@ def load_data(vettore,leng):
         day = vettore[x]
         #print(vettore[x])
         if contr == True:
-            series_temp = read_csv('/home/alessio/Desktop/parser/parsed_data/%s.csv'%day, header=0,
+            series_temp = read_csv('../../dev/experiment/data/%s.csv'%day, header=0,
                           parse_dates={'date_time' :['Day','Hour','Minute']}, index_col = 'date_time',
                           squeeze=True, date_parser=parser)
             series_temp = series_temp[series_temp['Byte_count'] != 0]
@@ -117,7 +109,7 @@ def runs_exper(exp,epoc,lag):
 		epoch = epoc
 		n_obs = n_features*n_lag
 		n_out = n_features*n_seq #Become the output of the lstm, the n. columns of the output
-		path = "/home/alessio/Desktop/tensorflow/scripts_tensorflow/RNNs/Mulivariate_forecasting/Multivariate-multisteps/Experiments/"
+		path = ""
 		filename = "RMSE_Res_N%d_Ep%d_Lg%d.csv" %(exp_number,epoch,n_lag)
 
 
@@ -131,36 +123,7 @@ def runs_exper(exp,epoc,lag):
 	tk_last2h = tk_last2h.index 
 
 
-	# In[16]:
 
-
-	"""Distribution of the request count"""
-
-
-	# In[17]:
-
-
-	sns.distplot(series.Request_count)
-
-
-	# In[18]:
-
-
-	#r = series.Request_count.value_counts
-	#r
-
-
-	# In[19]:
-
-
-	""" Prepare the time series data
-	1)Detrend the data (If s necessary)
-	2)Scale the data
-	3)Trasform as supervised problem
-	    """
-
-
-	# In[20]:
 
 
 	#scale the data
@@ -214,17 +177,7 @@ def runs_exper(exp,epoc,lag):
 	history = model.fit(train_input, train_output, epochs=epoch, batch_size=72, verbose=1, shuffle=False)
 
 
-	# In[ ]:
-
-
-
-
-
-	# In[33]:
-
-
 	#prediction of the model,need test input4
-	#   se la metto in una funzione a parte devo fare una reshape di test input --> test_input = test_input.reshape(test_input.shape[0], n_lag, n_features)
 	y_predict = model.predict(test_input)
 
 
@@ -233,18 +186,11 @@ def runs_exper(exp,epoc,lag):
 
 	"""Each columns of the y_predict is a prediction of each feature of my dataset"""
 	#print('y_predict_head \n',y_predict[:3])
-	print('y_predict_tail \n',y_predict[-3:])
+	#print('y_predict_tail \n',y_predict[-3:])
 	#print('test_predict_head \n',test_output[:3])
-	print('test_predict_tail \n',test_output[-3:])
+	#print('test_predict_tail \n',test_output[-3:])
 
 
-	# In[ ]:
-
-
-
-
-
-	# In[35]:
 
 
 	""" The rmse here is an error valuated on [0 1] """
@@ -301,13 +247,6 @@ def runs_exper(exp,epoc,lag):
 	inv_output_groun = concatenate((test_1,test_2,test_3), axis=1)
 	#inv_output_groun
 
-
-	# In[19]:
-
-
-	#Compute The rmse
-
-
 	# In[42]:
 
 
@@ -319,7 +258,7 @@ def runs_exper(exp,epoc,lag):
 	    rmse = sqrt(mean_squared_error(inv_output_groun[:,(i+(i+1)):(i+(i+2))],inv_output_pred[:,(i+(i+1)):(i+(i+2))]))
 	    rmse_df.RMSE[i] = rmse
 	    print('t+%d RMSE: %f' % ((i+1), rmse))
-	rmse_df.to_csv(path+filename, sep='\t', encoding='utf-8')    
+	rmse_df.to_csv(filename, sep='\t', encoding='utf-8')
 	"""for i in range(1,n_out,2):
 	    rmse = sqrt(mean_squared_error(inv_output_groun[:,i], inv_output_pred[:,i]))
 	    print('Test RMSE t+%d: %.3f'% (i , rmse))
@@ -340,8 +279,8 @@ def runs_exper(exp,epoc,lag):
 		truth_prediction['t+%d'%(i)]=inv_output_groun[:,i]
 		lstm_prediction['t+%d'%(i)]=inv_output_pred[:,i]
 	#truth_prediction        
-	lstm_prediction.to_csv('/home/alessio/Desktop/tensorflow/scripts_tensorflow/RNNs/Mulivariate_forecasting/Multivariate-multisteps/Result/lstm_prediction1000lag.csv', sep='\t', encoding='utf-8')
-	truth_prediction.to_csv('/home/alessio/Desktop/tensorflow/scripts_tensorflow/RNNs/Mulivariate_forecasting/Multivariate-multisteps/Result/test_prediction1000lag.csv', sep='\t', encoding='utf-8')
+	lstm_prediction.to_csv('Result/lstm_prediction1000lag.csv', sep='\t', encoding='utf-8')
+	truth_prediction.to_csv('Result/test_prediction1000lag.csv', sep='\t', encoding='utf-8')
 
 
 	# In[ ]:
@@ -401,7 +340,7 @@ def runs_exper(exp,epoc,lag):
 	pyplot.legend(loc='upper left', fancybox=True, fontsize='large', framealpha=0.5)
 	pyplot.rcParams['figure.figsize'] = (12,9)
 	pyplot.tight_layout()
-	pyplot.savefig(path+'plots/forecast_for_paper/forecast_ExpN_%d_Ep%d_Lg%d.png' %(exp_number,epoch,n_lag))
+	pyplot.savefig('plots/forecast_for_paper/forecast_ExpN_%d_Ep%d_Lg%d.png' %(exp_number,epoch,n_lag))
 	pyplot.show()
 
 
@@ -429,7 +368,7 @@ def runs_exper(exp,epoc,lag):
 	pyplot.xlabel("Minutes",fontsize=14)
 	pyplot.legend(loc='upper left', fancybox=True, fontsize='large', framealpha=0.5)
 	pyplot.tight_layout()
-	pyplot.savefig(path+'plots/all/forecast_ExpN_%d_Ep%d_Lg%d.png' %(exp_number,epoch,n_lag))
+	pyplot.savefig('plots/all/forecast_ExpN_%d_Ep%d_Lg%d.png' %(exp_number,epoch,n_lag))
 	pyplot.show()
 
 
@@ -461,7 +400,7 @@ def runs_exper(exp,epoc,lag):
 	pyplot.xlabel("Minutes",fontsize=14)
 	pyplot.legend(loc='upper left', fancybox=True, fontsize='large', framealpha=0.5)
 	pyplot.tight_layout()
-	pyplot.savefig(path+'plots/forecast_for_paper/forecast_t1_ExpN_%d_Ep%d_Lg%d.png' %(exp_number,epoch,n_lag))
+	pyplot.savefig('plots/forecast_for_paper/forecast_t1_ExpN_%d_Ep%d_Lg%d.png' %(exp_number,epoch,n_lag))
 	pyplot.show()
 
 
@@ -483,7 +422,7 @@ def runs_exper(exp,epoc,lag):
 	pyplot.xlabel("Minutes",fontsize=14)
 	pyplot.legend(loc='upper left', fancybox=True, fontsize='large', framealpha=0.5)
 	pyplot.tight_layout()
-	pyplot.savefig(path+'plots/forecast_for_paper/forecast_t2_ExpN_%d_Ep%d_Lg%d.png' %(exp_number,epoch,n_lag))
+	pyplot.savefig('plots/forecast_for_paper/forecast_t2_ExpN_%d_Ep%d_Lg%d.png' %(exp_number,epoch,n_lag))
 	pyplot.show()
 
 
@@ -505,7 +444,7 @@ def runs_exper(exp,epoc,lag):
 	pyplot.xlabel("Minutes",fontsize=14)
 	pyplot.legend(loc='upper left', fancybox=True, fontsize='large', framealpha=0.5)
 	pyplot.tight_layout()
-	pyplot.savefig(path+'plots/forecast_for_paper/forecast_t3_ExpN_%d_Ep%d_Lg%d.png' %(exp_number,epoch,n_lag))
+	pyplot.savefig(plots/forecast_for_paper/forecast_t3_ExpN_%d_Ep%d_Lg%d.png' %(exp_number,epoch,n_lag))
 	pyplot.show()
 
 
