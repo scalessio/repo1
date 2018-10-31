@@ -32,7 +32,7 @@ import glob, os
 def retrive():
     a=[]
     i=0
-    for file in os.listdir('/home/alessio/Desktop/parser/parsed_data/'):
+    for file in os.listdir('../../dev/experiment/data/%s.csv'):
         if file.endswith(".csv"):
             filename = file
             a.append(filename)
@@ -62,7 +62,7 @@ def load_data(vettore,leng):
             counter = counter + len(series_temp)
             #print("Rows number (tot): ",counter)
         else:
-            series = read_csv('/home/alessio/Desktop/parser/parsed_data/%s.csv'%day, header=0,
+            series = read_csv('../../dev/experiment/data/%s.csv'%day, header=0,
                           parse_dates={'date_time' :['Day','Hour','Minute']}, index_col = 'date_time',
                           squeeze=True, date_parser=parser)
             counter = len(series)
